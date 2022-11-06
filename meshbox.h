@@ -45,6 +45,10 @@ typedef struct {
 } vec2;
 
 typedef struct {
+    unsigned int x, y, w, h;
+} irect;
+
+typedef struct {
     float r, g, b, a;
 } color;
 
@@ -103,9 +107,19 @@ void vx_load(vertex *vertices, unsigned int amount);
 void vx_render(uint32_t *indices, unsigned int amount);
 
 // General graphiscs
+void gx_scissor(
+    unsigned int x, unsigned int y, 
+    unsigned int w, unsigned int h
+);
+void gx_viewport(
+    unsigned int x, unsigned int y, 
+    unsigned int w, unsigned int h
+);
+unsigned int gx_width();
+unsigned int gx_height();
 void gx_background(float r, float g, float b, float a);
 void gx_ambient(float r, float g, float b, float a);
-void gx_reset();
+void gx_clear();
 void gx_light(
     int type,
     float x, float y, float z,

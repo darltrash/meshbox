@@ -36,6 +36,8 @@ vec2 in_joystick1;
 vec2 in_joystick2;
 int in_buttons[4];
 
+irect gx_current_viewport;
+
 static void init(void) {
     sg_setup(&(sg_desc){
         .context = sapp_sgcontext()
@@ -209,7 +211,9 @@ static void init(void) {
         mx_identity();
 
         float t = tanf(fov * (PI / 180.0f) * 0.5f);
-        float aspect = sapp_widthf()/sapp_heightf();
+        float aspect = 
+             (float)(gx_current_viewport.w)
+            /(float)(gx_current_viewport.h);
 
         mx_current->data[0]  =  1.0f / (t * aspect);
         mx_current->data[5]  =  1.0f / t;
@@ -222,8 +226,8 @@ static void init(void) {
     void mx_orthographic(float near, float far) {
         mx_identity();
 
-        float right = sapp_widthf();
-        float bottom = sapp_heightf();
+        float right = gx_current_viewport.w;
+        float bottom = gx_current_viewport.h;
 
         mx_current->data[0]    =  2.0 / right;
         mx_current->data[5]    =  2.0 / -bottom;
@@ -450,6 +454,32 @@ static void init(void) {
     };
 
 // General graphics functions
+    void gx_scissor(
+        unsigned int x, unsigned int y, 
+        unsigned int w, unsigned int h
+    ) {
+        sg_apply_scissor_rect(x, y, w, h, true);
+    }
+
+    void gx_viewport(
+        unsigned int x, unsigned int y, 
+        unsigned int w, unsigned int h
+    ) {
+        gx_current_viewport.x = x;
+        gx_current_viewport.y = y;
+        gx_current_viewport.w = w;
+        gx_current_viewport.h = h;
+        sg_apply_viewport(x, y, w, h, true);
+    }
+
+    unsigned int gx_width() {
+        return sapp_width();
+    }
+
+    unsigned int gx_height() {
+        return sapp_height();
+    }
+
     void gx_background(float r, float g, float b, float a) {
         pass_action.colors[0].value = (sg_color){ r, g, b, a };
     }
@@ -461,7 +491,7 @@ static void init(void) {
         fs_uniforms.ambient[3] = a;
     }
 
-    void gx_reset() {
+    void gx_clear() {
         fs_uniforms.light_amounts = 0;
     }
 
@@ -535,7 +565,7 @@ void frame(void) {
     mx_current = &vs_uniforms.projection;
 
     tx_bind(NULL);
-    gx_reset();
+    gx_clear();
     gx_ambient(1.0f, 1.0f, 1.0f, 1.0f);
 
     vs_uniforms.model = matrix_identity;
@@ -550,6 +580,9 @@ void frame(void) {
     vx_index_offset  = 0;
     vx_current = 0;
     vx_size    = 0;
+
+    gx_scissor(0, 0, sapp_width(), sapp_height());
+    gx_viewport(0, 0, sapp_width(), sapp_height());
 
     sg_begin_default_pass(&pass_action, sapp_width(), sapp_height());
     sg_apply_pipeline(pip);

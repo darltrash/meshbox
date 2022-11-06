@@ -67,7 +67,7 @@ void main() {
             float power = mix(0.0, length(lc) / d2, step(1.0e-5, d2));
         }
 
-        diffuse.rgb += lc * power * dot(lp, normal);
+        diffuse.rgb += lc * power * dot(lp, -normal);
     }
 
     vec4 o = texture(tex, texcoord) * color * (ambient + diffuse);

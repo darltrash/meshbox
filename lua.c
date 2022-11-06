@@ -301,7 +301,44 @@ void lua_api_vx_render() { // [{number, ...}]
     vx_render(indices, len);
 }
 
+void lua_api_gx_scissor() {
+    if (lua_isnoneornil(l, 1)) 
+        return gx_scissor(0, 0, gx_width(), gx_height());
+
+    gx_scissor(
+        luaL_checknumber(l, 1),
+        luaL_checknumber(l, 2),
+        luaL_checknumber(l, 3),
+        luaL_checknumber(l, 4)
+    );
+}
+
+void lua_api_gx_viewport() {
+    if (lua_isnoneornil(l, 1)) 
+        return gx_viewport(0, 0, gx_width(), gx_height());
+
+    gx_viewport(
+        luaL_checknumber(l, 1),
+        luaL_checknumber(l, 2),
+        luaL_checknumber(l, 3),
+        luaL_checknumber(l, 4)
+    );
+}
+
+int lua_api_gx_width() {
+    lua_pushnumber(l, gx_width());
+    return 1;
+}
+
+int lua_api_gx_height() {
+    lua_pushnumber(l, gx_height());
+    return 1;
+}
+
 void lua_api_gx_background() {
+    if (lua_isnoneornil(l, 1)) 
+        return gx_background(1, 1, 1, 1);
+
     gx_background(
         luaL_checknumber(l, 1),
         luaL_checknumber(l, 2),
@@ -311,6 +348,9 @@ void lua_api_gx_background() {
 }
 
 void lua_api_gx_ambient() {
+    if (lua_isnoneornil(l, 1)) 
+        return gx_ambient(1, 1, 1, 1);
+
     gx_ambient(
         luaL_checknumber(l, 1),
         luaL_checknumber(l, 2),
@@ -319,8 +359,8 @@ void lua_api_gx_ambient() {
     );
 }
 
-void lua_api_gx_reset() {
-    gx_reset();
+void lua_api_gx_clear() {
+    gx_clear();
 }
 
 void lua_api_gx_light() {
@@ -376,9 +416,13 @@ struct {
     {"vx_load",     lua_api_vx_load},
     {"vx_render",   lua_api_vx_render},
 
+    {"gx_scissor",    lua_api_gx_scissor},
+    {"gx_viewport",   lua_api_gx_viewport},
+    {"gx_width",      lua_api_gx_width},
+    {"gx_height",     lua_api_gx_height},
     {"gx_background", lua_api_gx_background},
     {"gx_ambient",    lua_api_gx_ambient},
-    {"gx_reset",      lua_api_gx_reset},
+    {"gx_clear",      lua_api_gx_clear},
     {"gx_light",      lua_api_gx_light},
 
     {NULL, NULL}
