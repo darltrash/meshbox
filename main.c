@@ -127,21 +127,25 @@ static void init(void) {
     }
 
 // Texture binding functions.
-    void tx_bind(const char *file) {
+    int tx_bind(const char *file) {
         if (file == NULL) {
             bind.fs_images[0] = tx_clear;
-            return;
+            return 0;
         }
 
         sg_image *t = map_get(&tx_images, file);
         if (t) {
             bind.fs_images[0] = *t;
-            return;
+            return 0;
         }
 
         log_info("Loading '%s'", file);
 
         fs_file f = fs_read(file);
+
+        if (f.size < 1) {
+            return 1;
+        }
 
         int w, h, c;
         stbi_set_flip_vertically_on_load(1);

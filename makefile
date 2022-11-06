@@ -11,10 +11,12 @@ shaders:
 
 demo:
 	tcc $(CSOURCE) $(CDEPS) $(CFLAGS) -DSTBI_NO_SIMD -o meshbox.debug
-	./meshbox.debug concept
+	./meshbox.debug demo
 
 debug:
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -ggdb -o meshbox
 
 release:
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -Os -o meshbox
+
+.PHONY: demo

@@ -76,7 +76,7 @@ vec2 in_joystick(int id);
 int  in_button(int id);
 
 // Texture stuff (sucks)
-void tx_bind(const char *file);
+int tx_bind(const char *file);
 
 // Matrix stuff
 int mx_mode(int mode);

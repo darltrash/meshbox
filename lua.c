@@ -21,11 +21,12 @@ int lua_api_in_button() {
     return 2;
 }
 
-void lua_api_tx_bind() {
+int lua_api_tx_bind() {
     if (lua_isnoneornil(l, 1))
         return tx_bind(NULL);
 
-    tx_bind(luaL_checkstring(l, 1));
+    lua_pushboolean(l, tx_bind(luaL_checkstring(l, 1)));
+    return 1;
 }
 
 void lua_api_mx_mode() {
