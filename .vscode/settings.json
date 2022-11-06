@@ -1,0 +1,50 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/darl/Projects/meshbox",
+            "binaryPath": "/home/darl/Projects/meshbox/meshbox",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/darl/Projects/meshbox",
+            "binaryPath": "/home/darl/Projects/meshbox/meshbox",
+            "binaryArgs": []
+        }
+    ],
+    "files.associations": {
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "cmath": "c",
+        "shader.h": "c",
+        "string": "c",
+        "deque": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "system_error": "c",
+        "zip.h": "c",
+        "bit": "c",
+        "*.tcc": "c",
+        "exception": "c",
+        "algorithm": "c",
+        "functional": "c",
+        "random": "c",
+        "limits": "c",
+        "numeric": "c",
+        "ostream": "c",
+        "streambuf": "c",
+        "typeinfo": "c",
+        "*.rh": "c",
+        "compare": "c",
+        "type_traits": "c",
+        "tuple": "c",
+        "utility": "c"
+    },
+    "Lua.diagnostics.disable": [
+        "undefined-global"
+    ],
+    "Lua.diagnostics.globals": [
+        "cb_frame"
+    ],
+    "Lua.workspace.checkThirdParty": false
+}
