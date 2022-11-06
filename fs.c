@@ -34,7 +34,7 @@ int fs_init(const char *path) {
             path = "data.bin";
     }
 
-    log_info("Attempting to mount %s", path);
+    log_info("Attempting to mount '%s'", path);
 
     if (is_directory(path)) {
         mount = (fs_mount_t) {
@@ -54,7 +54,8 @@ int fs_init(const char *path) {
         .type = FS_MOUNT_TYPE_ZIP,
         .data = zip
     };
-    log_info("Mounted as Zip.");
+
+    log_info("Mounted as binary.");
 
     return 0;
 }
@@ -69,15 +70,16 @@ fs_file fs_read(const char *path) {
                 return FS_FILE_CLEAR;
             
             fseek(raw_file, 0, SEEK_END);
-            int size = ftell(raw_file);
-            fseek(raw_file, 0, SEEK_SET); 
-
-            file.size = size;
-
-            char *buffer = malloc(size);
-            fgets(&buffer, size, raw_file);
+            unsigned long length = ftell(raw_file);
+            fseek(raw_file, 0, SEEK_SET);
+            
+            char *buffer = malloc(length);
+            if (buffer)
+                fread(buffer, 1, length, raw_file);
+    
             fclose(raw_file);
 
+            file.size = length;
             file.data = buffer;
 
             break;

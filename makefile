@@ -11,7 +11,7 @@ shaders:
 
 demo:
 	tcc $(CSOURCE) $(CDEPS) $(CFLAGS) -DSTBI_NO_SIMD -o meshbox.debug
-	./meshbox.debug
+	./meshbox.debug concept
 
 debug:
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -ggdb -o meshbox

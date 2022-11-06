@@ -605,9 +605,6 @@ sapp_desc sokol_main(int argc, char* argv[]) {
 
     fs_init(path);
 
-    //fs_file sus = fs_read("fs.h");
-    //printf("%s\n", sus.data);
-
     lua_api_setup();
 
     (void)argc; (void)argv;

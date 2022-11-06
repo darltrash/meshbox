@@ -444,7 +444,7 @@ int lua_api_setup() {
         i++;
     }
 
-    luaL_dostring(l, "require 'lua'");
+    luaL_dostring(l, "require 'meshbox'");
 
     lua_getglobal(l, "cb_setup");
     if (lua_pcall(l, 0, 0, 0)) {
