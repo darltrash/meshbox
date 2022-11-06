@@ -79,6 +79,11 @@ end
 
 for k, v in ipairs(cube) do
     v.nx, v.ny, v.nz = normalize(v.nx, v.ny, v.nz)
+    v.r = 1
+    v.g = 1
+    v.b = 1
+    v.a = 1
+    print(("{x=%f, y=%f, z=%f,   nx=%f, ny=%f, nz=%f},"):format(v.x, v.y, v.z, v.nx, v.ny, v.nz))
 end
 
 local t = 0
@@ -102,49 +107,26 @@ function cb_frame(dt)
 
     mx_mode("view")
     mx_look_at(
-        2, 2, 2,
+        1, 0, 4,
         0, 0, 0,
         0, 0, 1
     )
 
     mx_mode("model")
+
+    local x, y   = math.cos(t)*2,         math.sin(t)*-2
+    local x2, y2 = math.cos(t+math.pi)*2, math.sin(t+math.pi)*-2
+
+    mx_translate(x, y, -2)
+    mx_scale(0.1, 0.1, 0.1)
+    vx_load(cube)
+    vx_render(cube.indices)
+
     mx_identity()
     mx_euler(0, 0, t)
-
-    tx_bind("sungpung.png")
-    vx_load {
-        {x=-1, y= 1, z=0,   u=0, v=1},
-        {x= 1, y= 1, z=0,   u=1, v=1},
-        {x= 1, y=-1, z=0,   u=1, v=0},
-        {x=-1, y=-1, z=0,   u=0, v=0}
-    }
-    vx_render { 0, 1, 2, 0, 2, 3 }
-
-    --local x, y   = math.cos(t)*2,         math.sin(t)*-2
-    --local x2, y2 = math.cos(t+math.pi)*2, math.sin(t+math.pi)*-2
---
-    --gx_ambient(0.6, 0.5, 0.8, 1)
-    --mx_identity()
-    --mx_translate(x, y, 0)
-    --mx_scale(0.25, 0.25, 0.25)
-    --vx_load(cube)
-    --vx_render(cube.indices)
---
-    --gx_ambient(0.8, 0.5, 0.6, 1)
-    --mx_identity()
-    --mx_translate(x2, y2, 0)
-    --mx_scale(0.25, 0.25, 0.25)
-    --vx_load(cube)
-    --vx_render(cube.indices)
---
-    --mx_identity()
-    --mx_euler(0, t, 0)
-    --mx_scale(0.5, 0.5, 0.5)
-    --gx_ambient(0.2, 0.2, 0.3, 1)
-    --gx_light("point", x, y,   0, 10.8, 1.2, 1.9)
-    --gx_light("point", x2, y2, 0, 10.9, 1.2, 1.8)
-    --vx_load(cube)
-    --vx_render(cube.indices)
-
-    --gx_background(1, 1, 1, 1)
+    mx_scale(0.5, 0.5, 0.5)
+    gx_ambient(0x98/255, 0x8c/255, 0xe6/255, 1)
+    gx_light("point",  x, y, -2,    0.9, 0.7, 0.3)
+    vx_load(cube)
+    vx_render(cube.indices)
 end

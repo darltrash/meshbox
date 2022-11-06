@@ -53,7 +53,7 @@ out vec4 frag_color;
 uniform sampler2D tex;
 
 void main() {
-    vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 diffuse = vec4(0.0, 0.0, 0.0, 0.0);
 
     for (int i=0; i < light_amounts; i++) {
         float lt = light_position[i].w;

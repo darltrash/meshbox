@@ -32,6 +32,10 @@ vertex vx_raw_vertices[VX_BUFFER_SIZE];
 vs_uniforms_t vs_uniforms = {};
 fs_uniforms_t fs_uniforms = {};
 
+vec2 in_joystick1;
+vec2 in_joystick2;
+int in_buttons[4];
+
 static void init(void) {
     sg_setup(&(sg_desc){
         .context = sapp_sgcontext()
@@ -95,6 +99,30 @@ static void init(void) {
         }
     };
 }
+
+// Input-related functions
+    vec2 in_joystick(int id) {
+        if (id == 0)
+            return in_joystick1;
+        
+        if (id == 1)
+            return in_joystick2;
+
+        return (vec2) {
+            .x = 0.0,
+            .y = 0.0
+        };
+    }
+
+    int in_button(int id) {
+        if (id > 3)
+            return 0;
+
+        if (id < 0)
+            return 0;
+
+        return in_buttons[id];
+    }
 
 // Texture binding functions.
     void tx_bind(const char *file) {
@@ -456,6 +484,53 @@ static void init(void) {
         fs_uniforms.light_amounts = (i + 1) % GX_LIGHT_AMOUNT;
     }
 
+void event(const sapp_event *ev) {
+    switch (ev->type) {
+        case SAPP_EVENTTYPE_KEY_DOWN:
+            switch (ev->key_code) {
+                case SAPP_KEYCODE_W:
+                    in_joystick1.y = -1;
+                    break; 
+
+                case SAPP_KEYCODE_S:
+                    in_joystick1.y = 1;
+                    break; 
+
+                case SAPP_KEYCODE_A:
+                    in_joystick1.x = -1;
+                    break; 
+
+                case SAPP_KEYCODE_D:
+                    in_joystick1.x = 1;
+                    break; 
+            }
+            break;
+
+        case SAPP_EVENTTYPE_KEY_UP:
+            switch (ev->key_code) {
+                case SAPP_KEYCODE_W:
+                    in_joystick1.y = 0;
+                    break; 
+
+                case SAPP_KEYCODE_S:
+                    in_joystick1.y = 0;
+                    break; 
+
+                case SAPP_KEYCODE_A:
+                    in_joystick1.x = 0;
+                    break; 
+
+                case SAPP_KEYCODE_D:
+                    in_joystick1.x = 0;
+                    break; 
+            }
+            break;
+        
+        default:
+            break;
+    }
+}
+
 void frame(void) {
     mx_current = &vs_uniforms.projection;
 
@@ -505,6 +580,7 @@ sapp_desc sokol_main(int argc, char* argv[]) {
     (void)argc; (void)argv;
     return (sapp_desc){
         .init_cb = init,
+        .event_cb = event,
         .frame_cb = frame,
         .cleanup_cb = cleanup,
         .width = 800,

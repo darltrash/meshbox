@@ -7,6 +7,20 @@ lua_State *l;
 
 void lua_api_none() {}
 
+int lua_api_in_joystick() {
+    vec2 o = in_joystick(luaL_checkinteger(l, 1));
+    lua_pushnumber(l, o.x);
+    lua_pushnumber(l, o.y);
+    return 2;
+}
+
+int lua_api_in_button() {
+    int b = in_button(luaL_checkinteger(l, 1));
+    lua_pushboolean(l, b);
+    lua_pushnumber(l, b);
+    return 2;
+}
+
 void lua_api_tx_bind() {
     if (lua_isnoneornil(l, 1))
         return tx_bind(NULL);
@@ -17,7 +31,7 @@ void lua_api_tx_bind() {
 void lua_api_mx_mode() {
     int option = luaL_checkoption(l, 1, "projection", 
         (const char *const []) {
-            "model", "view", "projection"
+            "model", "view", "projection", NULL
         }
     );
     
@@ -312,7 +326,7 @@ void lua_api_gx_reset() {
 void lua_api_gx_light() {
     int type = luaL_checkoption(l, 1, "directional", 
         (const char *const []) {
-            "directional", "point"
+            "directional", "point", NULL
         }
     );
 
@@ -336,6 +350,9 @@ struct {
 } registers[] = {
     {"cb_setup",    lua_api_none},
     {"cb_frame",    lua_api_none},
+
+    {"in_joystick", lua_api_in_joystick},
+    {"in_button",   lua_api_in_button},
 
     {"tx_bind",     lua_api_tx_bind},
 

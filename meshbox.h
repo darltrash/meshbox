@@ -67,6 +67,10 @@ typedef struct {
     .r = 1.0f, .g = 1.0f, .b = 1.0f, .a = 1.0f\
 }
 
+// Input handling
+vec2 in_joystick(int id);
+int  in_button(int id);
+
 // Texture stuff (sucks)
 void tx_bind(const char *file);
 
