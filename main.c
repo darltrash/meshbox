@@ -141,11 +141,11 @@ static void init(void) {
 
         log_info("Loading '%s'", file);
 
-        FILE *f = fopen(file, "rb");
+        fs_file f = fs_read(file);
 
         int w, h, c;
         stbi_set_flip_vertically_on_load(1);
-        void *d = stbi_load_from_file(f, &w, &h, &c, 4);
+        void *d = stbi_load_from_memory(f.data, f.size, &w, &h, &c, 4);
 
         sg_image i = sg_make_image(&(sg_image_desc) {
             .width  = w,
@@ -165,8 +165,6 @@ static void init(void) {
         });
 
         map_set(&tx_images, file, i);
-
-        fclose(f);
 
         bind.fs_images[0] = i;
     }

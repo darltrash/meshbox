@@ -47,14 +47,16 @@ function cb_frame(dt)
     mx_mode("model")
     mx_translate(0, 0, 1)
     
+    tx_bind("funky.png")
     vx_load {
-        {x=-1, y= 1, z=0,   r=1.0, g=0.6, b=0.8, a=1.0},
-        {x= 1, y= 1, z=0,   r=1.0, g=0.6, b=0.8, a=1.0},
-        {x= 1, y=-1, z=0,   r=0.2, g=0.5, b=1.0, a=1.0}, -- top
-        {x=-1, y=-1, z=0,   r=0.2, g=0.5, b=1.0, a=1.0}  -- top
+        {x=-1, y= 1, z=0,   u=0, v=1,   r=1.0, g=0.6, b=0.8, a=1.0},
+        {x= 1, y= 1, z=0,   u=1, v=1,   r=1.0, g=0.6, b=0.8, a=1.0},
+        {x= 1, y=-1, z=0,   u=1, v=0,   r=0.2, g=0.5, b=1.0, a=1.0}, -- top
+        {x=-1, y=-1, z=0,   u=0, v=0,   r=0.2, g=0.5, b=1.0, a=1.0}  -- top
     }
 
     vx_render { 0, 1, 2, 0, 2, 3 }
+    tx_bind()
 
     local function magic()
         mx_mode("view")
