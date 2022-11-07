@@ -37,7 +37,7 @@ int fs_init(const char *path) {
             path = "data.bin";
     }
 
-    log_info("Attempting to mount '%s'", path);
+    log_info("Attempting to mount '%s'.", path);
 
     if (is_directory(path)) {
         mount = (fs_mount_t) {
@@ -50,8 +50,10 @@ int fs_init(const char *path) {
     }
 
     struct zip_t *zip = zip_open(path, 0, 'r');
-    if (!zip)
-        return 1;
+    if (!zip) {
+        log_info("Failed to mount!");
+        return fs_init(".");
+    }
 
     mount = (fs_mount_t) {
         .type = FS_MOUNT_TYPE_ZIP,

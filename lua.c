@@ -2,6 +2,7 @@
 #include "lib/minilua.h"
 #include "meshbox.h"
 #include "lib/log.h"
+#include "lua_boot.h"
 #include "fs.h"
 #include "string.h"
 
@@ -468,17 +469,7 @@ int lua_api_setup() {
         i++;
     }
 
-    char *boot = 
-        "table.insert(package.searchers, function(t);"
-        "   local modulepath = string.gsub(t, \"\%.\", \"/\")..'.lua';"
-        "   local f, s = fs_read(modulepath);"
-        "   if s > 0 then;"
-        "       return assert(load(f, t));"
-        "   end;"
-        "   return (\"Unable to load '\%s'\"):format(t);"
-        "end); require 'meshbox'";
-
-    luaL_dostring(l, boot);
+    luaL_dostring(l, boot_lua);
 
     lua_getglobal(l, "cb_setup");
     if (lua_pcall(l, 0, 0, 0)) {

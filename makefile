@@ -6,6 +6,9 @@ CSOURCE := *.c lib/*.c -I.
 CORES   = $(shell getconf _NPROCESSORS_ONLN)
 MAKEFLAGS := -j $(CORES)
 
+lua-boot:
+	xxd -i boot.lua > lua_boot.h
+
 shaders:
 	sokol-shdc -i shader.glsl -o shader.h -l glsl100:hlsl5:metal_macos
 
@@ -17,12 +20,16 @@ demo-zip:
 	tcc $(CSOURCE) $(CDEPS) $(CFLAGS) -DSTBI_NO_SIMD -o meshbox.debug
 	zip -j data.bin demo/*
 	./meshbox.debug
-#rm data.bin
+#	rm data.bin
 
-debug:
+debug: lua-boot
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -ggdb -o meshbox
 
-release:
+splash: lua-boot
+	tcc $(CSOURCE) $(CDEPS) $(CFLAGS) -DSTBI_NO_SIMD -o meshbox.debug
+	./meshbox.debug here-goes-nothing
+
+release: lua-boot
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -Os -o meshbox
 
 .PHONY: demo
