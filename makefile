@@ -17,7 +17,7 @@ demo-zip:
 	tcc $(CSOURCE) $(CDEPS) $(CFLAGS) -DSTBI_NO_SIMD -o meshbox.debug
 	zip -j data.bin demo/*
 	./meshbox.debug
-	rm data.bin
+#rm data.bin
 
 debug:
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -ggdb -o meshbox
