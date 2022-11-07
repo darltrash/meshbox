@@ -2,10 +2,30 @@
 #include "lib/minilua.h"
 #include "meshbox.h"
 #include "lib/log.h"
+#include "fs.h"
+#include "string.h"
 
 lua_State *l;
 
 void lua_api_none() {}
+
+int lua_api_fs_read() {
+    fs_file f = fs_read(luaL_checkstring(l, 1));
+
+    if (f.data)
+        lua_pushstring(l, f.data);
+    else
+        lua_pushstring(l, "");
+
+    lua_pushnumber(l, f.size);
+
+    return 2;
+}
+
+int lua_api_fs_write() {
+    fs_write(luaL_checkstring(l, 1), luaL_checkstring(l, 2));
+    return 0;
+}
 
 int lua_api_in_joystick() {
     vec2 o = in_joystick(luaL_checkinteger(l, 1));
@@ -389,18 +409,21 @@ struct {
     void *fn;
 
 } registers[] = {
-    {"cb_setup",    lua_api_none},
-    {"cb_frame",    lua_api_none},
+    {"cb_setup",     lua_api_none},
+    {"cb_frame",     lua_api_none},
 
-    {"in_joystick", lua_api_in_joystick},
-    {"in_button",   lua_api_in_button},
+    {"fs_read",      lua_api_fs_read},
+    {"fs_write",     lua_api_fs_write},
 
-    {"tx_bind",     lua_api_tx_bind},
+    {"in_joystick",  lua_api_in_joystick},
+    {"in_button",    lua_api_in_button},
 
-    {"mx_mode",     lua_api_mx_mode},
-    {"mx_identity", lua_api_mx_identity},
-    {"mx_set",      lua_api_mx_set},
-    {"mx_get",      lua_api_mx_get},
+    {"tx_bind",      lua_api_tx_bind},
+
+    {"mx_mode",      lua_api_mx_mode},
+    {"mx_identity",  lua_api_mx_identity},
+    {"mx_set",       lua_api_mx_set},
+    {"mx_get",       lua_api_mx_get},
     {"mx_perspective",  lua_api_mx_perspective},
     {"mx_orthographic", lua_api_mx_orthographic},
     {"mx_look_at",   lua_api_mx_look_at},
@@ -410,12 +433,12 @@ struct {
     {"mx_euler",     lua_api_mx_euler},
     {"mx_scale",     lua_api_mx_scale},
 
-    {"vx_normal",   lua_api_vx_normal},
-    {"vx_texcoord", lua_api_vx_texcoord},
-    {"vx_color",    lua_api_vx_color},
-    {"vx_vertex",   lua_api_vx_vertex},
-    {"vx_load",     lua_api_vx_load},
-    {"vx_render",   lua_api_vx_render},
+    {"vx_normal",    lua_api_vx_normal},
+    {"vx_texcoord",  lua_api_vx_texcoord},
+    {"vx_color",     lua_api_vx_color},
+    {"vx_vertex",    lua_api_vx_vertex},
+    {"vx_load",      lua_api_vx_load},
+    {"vx_render",    lua_api_vx_render},
 
     {"gx_scissor",    lua_api_gx_scissor},
     {"gx_viewport",   lua_api_gx_viewport},
@@ -445,7 +468,17 @@ int lua_api_setup() {
         i++;
     }
 
-    luaL_dostring(l, "require 'meshbox'");
+    char *boot = 
+        "table.insert(package.searchers, function(t);"
+        "   local modulepath = string.gsub(t, \"\%.\", \"/\")..'.lua';"
+        "   local f, s = fs_read(modulepath);"
+        "   if s > 0 then;"
+        "       return assert(load(f, t));"
+        "   end;"
+        "   return (\"Unable to load '\%s'\"):format(t);"
+        "end); require 'meshbox'";
+
+    luaL_dostring(l, boot);
 
     lua_getglobal(l, "cb_setup");
     if (lua_pcall(l, 0, 0, 0)) {

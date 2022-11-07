@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/meshbox",
-            "args": ["demo"],
+            "args": ["data.bin"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

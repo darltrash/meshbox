@@ -1,6 +1,7 @@
 #include "fs.h"
 #include "lib/log.h"
 #include "lib/zip.h"
+#include "lib/map.h"
 
 #ifdef WIN32
 #include <io.h>
@@ -12,6 +13,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+map_t(fs_file) fs_cache;
 
 typedef struct {
     int type;
@@ -63,6 +66,10 @@ int fs_init(const char *path) {
 fs_file fs_read(const char *path) {
     fs_file file = FS_FILE_CLEAR;
 
+    fs_file *f = map_get(&fs_cache, path);
+    if (f)
+        return *f;
+
     switch (mount.type) {
         case FS_MOUNT_TYPE_FOLDER: {
             FILE *raw_file = fopen(path, "r");
@@ -103,6 +110,9 @@ fs_file fs_read(const char *path) {
             break;
         }
     }
+
+    if (file.size > 0)
+        map_set(&fs_cache, path, file);
 
     return file;
 }
