@@ -39,7 +39,7 @@ vec4 get_snapped_pos(vec4 base_pos) {
 //
 //    snapped_pos.xyz /= snapped_pos.w;
 
-    vec2 a = (1.0/resolution)*20000.0;
+    vec2 a = resolution*0.5;
     snapped_pos.xy = floor(snapped_pos.xy*a)/a;
 
 	return snapped_pos;

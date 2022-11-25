@@ -27,7 +27,7 @@ debug: lua-boot
 
 splash: lua-boot shaders
 	tcc $(CSOURCE) $(CDEPS) $(CFLAGS) -DSTBI_NO_SIMD -o meshbox.debug
-	./meshbox.debug demo
+	./meshbox.debug
 
 release: lua-boot
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -Os -o meshbox

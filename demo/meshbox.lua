@@ -34,6 +34,8 @@ local cube = {
     }
 }
 
+--sv_identity("meshbox-demo")
+
 local t = 0
 function cb_frame(dt)
     t = t + dt

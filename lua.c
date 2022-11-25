@@ -10,6 +10,10 @@ lua_State *l;
 
 void lua_api_none() {}
 
+void lua_api_wn_title() {
+    wn_title(luaL_checkstring(l, 1));
+}
+
 int lua_api_sv_read() {
     int size = 0;
     char *data = sv_read(&size);
@@ -23,14 +27,17 @@ int lua_api_sv_read() {
 }
 
 int lua_api_sv_write() {
-    luaL_checkany(l, 1);
-    char *data = lua_tostring(l, 1);
-    lua_pushboolean(l, sv_write(data));
+    int size = 0;
+    char *data = lua_tolstring(l, 1, &size);
+    lua_pushboolean(l, sv_write(data, size));
 
     return 1;
 }
 
 void lua_api_sv_identity() {
+    if (lua_isnoneornil(l, 1))
+        return sv_identity(NULL);
+
     char *identity = luaL_checkstring(l, 1);
     sv_identity(identity);
 }
@@ -41,16 +48,11 @@ int lua_api_fs_read() {
     if (f.data)
         lua_pushstring(l, f.data);
     else
-        lua_pushstring(l, "");
+        lua_pushboolean(l, false);
 
     lua_pushnumber(l, f.size);
 
     return 2;
-}
-
-int lua_api_fs_write() {
-    fs_write(luaL_checkstring(l, 1), luaL_checkstring(l, 2));
-    return 0;
 }
 
 int lua_api_in_joystick() {
@@ -437,6 +439,8 @@ struct {
 } registers[] = {
     {"cb_setup",     lua_api_none},
     {"cb_frame",     lua_api_none},
+
+    {"wn_title",     lua_api_wn_title},
 
     {"sv_read",      lua_api_sv_read},
     {"sv_write",     lua_api_sv_write},

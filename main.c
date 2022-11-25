@@ -12,6 +12,12 @@
 
 #include "math.h"
 #include "fs.h"
+#if defined(_WIN32) 
+    #include <windows.h>
+#else
+    #include "sys/stat.h"
+    #include "pwd.h"
+#endif
 
 sg_pipeline pip;
 sg_bindings bind;
@@ -37,6 +43,7 @@ vec2 in_joystick2;
 int in_buttons[4];
 
 irect gx_current_viewport;
+char *save_path;
 
 static void init(void) {
     sg_setup(&(sg_desc){
@@ -101,7 +108,59 @@ static void init(void) {
             .value = { 0.0f, 0.0f, 0.0f, 1.0f } 
         }
     };
+
+    lua_api_setup();
 }
+
+// Window stuff
+    int wn_title(char *title) {
+        sapp_set_window_title(title);
+    }
+
+// Catridge savefile stuff i dont know???
+char *identity = NULL;
+FILE *save = NULL;
+
+    char* sv_read(int *size) {
+        *size = 0;
+        if (!identity) return NULL;
+
+        fseek(save, 0, SEEK_END);
+        unsigned long length = ftell(save);
+        fseek(save, 0, SEEK_SET);
+
+        char *data = malloc(length);
+        fread(data, length, 1, save);
+    }
+
+    int sv_write(char *data, int size) {
+        if (!identity) return 0;
+        if (size > 8192)
+
+        fwrite(data, size, 1, save);
+        return 1;
+    }
+
+    void sv_identity(char *name) {
+        if (save)
+            fclose(save);
+
+        if (!name) {
+            identity = NULL;
+            return;
+        }
+        
+        free(identity);
+        int len = strlen(name);
+        identity = malloc(len);
+        memcpy(identity, name, len);
+
+        save = fopen(identity, "rb+");
+        if (!save) {
+            log_fatal("Save file could not be open! Are you sure you've got all the permissions?");
+            exit(1);
+        }
+    }
 
 // Input-related functions
     vec2 in_joystick(int id) {
@@ -611,7 +670,27 @@ sapp_desc sokol_main(int argc, char* argv[]) {
 
     fs_init(path);
 
-    lua_api_setup();
+#ifdef defined(_WIN32)
+    char *appdata = getenv("APPDATA"); // GOD HAVE MERCY
+    int path_len = strlen(appdata);
+    save_path = malloc(path_len+10);
+    memcpy(save_path, appdata, path_len);
+    memcpy(save_path+path_len, "\\meshbox", 9);
+#else
+    struct passwd *pw = getpwuid(getuid());
+    int path_len = strlen(pw->pw_dir);
+    save_path = malloc(path_len+10);
+    memcpy(save_path, pw->pw_dir, path_len);
+    memcpy(save_path+path_len, "/.meshbox", 10);
+#endif
+
+log_info("Trying to create folder at '%s'", save_path);
+
+#if defined(_WIN32)
+    CreateDirectory("C:\\test", NULL);
+#else
+    mkdir(save_path, 0700);
+#endif
 
     (void)argc; (void)argv;
     return (sapp_desc){
@@ -621,8 +700,8 @@ sapp_desc sokol_main(int argc, char* argv[]) {
         .cleanup_cb = cleanup,
         .width = 800,
         .height = 600,
-        .gl_force_gles2 = true,
         .window_title = "meshbox",
+        .gl_force_gles2 = true,
         .icon.sokol_default = true,
     };
 }
