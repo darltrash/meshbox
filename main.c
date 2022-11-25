@@ -72,6 +72,7 @@ static void init(void) {
 
     // TODO: Fix depth buffer not doing anything at all.
     // TODO [NOV 5]: what the fuck
+    // TODO [NOV 8]: ?????????????
     pip = sg_make_pipeline(&(sg_pipeline_desc){
         .shader = shd,
         .layout = {
@@ -573,6 +574,9 @@ void frame(void) {
     vs_uniforms.model = matrix_identity;
     vs_uniforms.view  = matrix_identity;
     vs_uniforms.projection = matrix_identity;
+    
+    vs_uniforms.resolution.x = sapp_widthf();
+    vs_uniforms.resolution.y = sapp_heightf();
 
     vx_current_vertex = vertex_default;
 

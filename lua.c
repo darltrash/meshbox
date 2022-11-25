@@ -10,6 +10,31 @@ lua_State *l;
 
 void lua_api_none() {}
 
+int lua_api_sv_read() {
+    int size = 0;
+    char *data = sv_read(&size);
+
+    if (data)
+        lua_pushlstring(l, data, size);
+    else
+        lua_pushboolean(l, false);
+
+    return 1;
+}
+
+int lua_api_sv_write() {
+    luaL_checkany(l, 1);
+    char *data = lua_tostring(l, 1);
+    lua_pushboolean(l, sv_write(data));
+
+    return 1;
+}
+
+void lua_api_sv_identity() {
+    char *identity = luaL_checkstring(l, 1);
+    sv_identity(identity);
+}
+
 int lua_api_fs_read() {
     fs_file f = fs_read(luaL_checkstring(l, 1));
 
@@ -413,8 +438,11 @@ struct {
     {"cb_setup",     lua_api_none},
     {"cb_frame",     lua_api_none},
 
+    {"sv_read",      lua_api_sv_read},
+    {"sv_write",     lua_api_sv_write},
+    {"sv_identity",  lua_api_sv_identity},
+
     {"fs_read",      lua_api_fs_read},
-    {"fs_write",     lua_api_fs_write},
 
     {"in_joystick",  lua_api_in_joystick},
     {"in_button",    lua_api_in_button},
@@ -469,7 +497,13 @@ int lua_api_setup() {
         i++;
     }
 
-    luaL_dostring(l, boot_lua);
+    const int ret = luaL_dostring(l, boot_lua);
+
+    if (ret != LUA_OK) {
+        log_fatal("Error: %s\n", lua_tostring(l, -1));
+        lua_pop(l, 1);
+        return false;
+    }
 
     lua_getglobal(l, "cb_setup");
     if (lua_pcall(l, 0, 0, 0)) {

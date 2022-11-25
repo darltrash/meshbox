@@ -118,7 +118,3 @@ fs_file fs_read(const char *path) {
 
     return file;
 }
-
-int fs_write(const char *path, const char *data) {
-    
-};

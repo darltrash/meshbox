@@ -25,9 +25,9 @@ demo-zip:
 debug: lua-boot
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -ggdb -o meshbox
 
-splash: lua-boot
+splash: lua-boot shaders
 	tcc $(CSOURCE) $(CDEPS) $(CFLAGS) -DSTBI_NO_SIMD -o meshbox.debug
-	./meshbox.debug here-goes-nothing
+	./meshbox.debug demo
 
 release: lua-boot
 	gcc $(CSOURCE) $(CDEPS) $(CFLAGS) -Os -o meshbox

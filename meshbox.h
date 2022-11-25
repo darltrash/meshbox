@@ -71,6 +71,11 @@ typedef struct {
     .r = 1.0f, .g = 1.0f, .b = 1.0f, .a = 1.0f\
 }
 
+// Memory catridge
+char *sv_read(int *size);
+int sv_write(char *buffer);
+int sv_identity(char *id);
+
 // Input handling
 vec2 in_joystick(int id);
 int  in_button(int id);

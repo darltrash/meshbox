@@ -1,4 +1,5 @@
 @ctype mat4 matrix
+@ctype vec2 vec2
 
 @vs vs
 in vec3 vx_position;
@@ -10,6 +11,7 @@ uniform vs_uniforms {
     mat4 model;
     mat4 view;
     mat4 projection;
+    vec2 resolution;
 };
 
 out vec3 position;
@@ -25,9 +27,27 @@ mat3 cofactor(mat4 m) {
     );
 }
 
+const float precision_multiplier = 6.0;
+
+vec4 get_snapped_pos(vec4 base_pos) {
+	vec4 snapped_pos = base_pos;
+//  snapped_pos.xyz *= snapped_pos.w;
+//
+//    snapped_pos.xy = (snapped_pos.xy + vec2(1.0, 1.0)) * resolution * 0.5;
+//    snapped_pos.xy = floor(snapped_pos.xy) + 0.5;
+//    snapped_pos.xy = (snapped_pos.xy / (resolution / 2.0)) - 1.0;
+//
+//    snapped_pos.xyz /= snapped_pos.w;
+
+    vec2 a = (1.0/resolution)*20000.0;
+    snapped_pos.xy = floor(snapped_pos.xy*a)/a;
+
+	return snapped_pos;
+}
+
 void main() {
-    gl_Position = projection * view * model * vec4(vx_position, 1.0);
-    
+    gl_Position = get_snapped_pos(projection * view * model * vec4(vx_position, 1.0));
+
     position = (model * vec4(vx_position, 1.0)).xyz;
     normal = cofactor(model) * vx_normal;
     texcoord = vx_texcoord;

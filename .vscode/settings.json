@@ -44,7 +44,8 @@
         "undefined-global"
     ],
     "Lua.diagnostics.globals": [
-        "cb_frame"
+        "cb_frame",
+        "cb_init"
     ],
     "Lua.workspace.checkThirdParty": false
 }

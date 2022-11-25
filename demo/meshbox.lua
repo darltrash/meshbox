@@ -34,12 +34,6 @@ local cube = {
     }
 }
 
-for _, v in ipairs(cube) do
-    v.r = 1
-    v.g = 1
-    v.b = 1
-end
-
 local t = 0
 function cb_frame(dt)
     t = t + dt

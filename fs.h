@@ -11,6 +11,4 @@ enum {
 };
 
 int fs_init(const char *path);
-
 fs_file fs_read(const char *path);
-int fs_write(const char *path, const char *data);

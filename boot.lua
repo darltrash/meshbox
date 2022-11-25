@@ -7,9 +7,6 @@ table.insert(package.searchers, function(t)
    return ("Unable to load '%s'"):format(t)
 end)
 
-local ok = pcall(require, "meshbox")
-if ok then return end
-
 -- Splash goes here!
 
 local cube = {
@@ -48,23 +45,175 @@ local cube = {
     }
 }
 
+local splash = {
+    {x=-0.750, y=-0.750}, 
+    {x=-0.750, y=-0.300},   
+    {x=-0.650, y=-0.600}, 
+    {x=-0.650, y=-0.300}, 
+    {x=-0.550, y=-0.550}, 
+    {x=-0.550, y=-0.650}, 
+    {x=-0.450, y=-0.600}, 
+    {x=-0.450, y=-0.300}, 
+    {x=-0.350, y=-0.300}, 
+    {x=-0.350, y=-0.750}, 
+    {x=-0.450, y=-0.750}, 
+    {x=-0.650, y=-0.750}, 
+    {x=0.050, y=-0.750}, 
+    {x=-0.200, y=-0.650}, 
+    {x=0.050, y=-0.650}, 
+    {x=-0.300, y=-0.750}, 
+    {x=-0.300, y=-0.300}, 
+    {x=0.050, y=-0.300}, 
+    {x=0.050, y=-0.400}, 
+    {x=-0.200, y=-0.400}, 
+    {x=-0.200, y=-0.600}, 
+    {x=0.000, y=-0.600}, 
+    {x=-0.200, y=-0.500}, 
+    {x=0.100, y=-0.400}, 
+    {x=0.100, y=-0.300}, 
+    {x=0.350, y=-0.300}, 
+    {x=0.450, y=-0.400}, 
+    {x=0.400, y=-0.550}, 
+    {x=0.200, y=-0.500}, 
+    {x=0.100, y=-0.600}, 
+    {x=0.200, y=-0.750}, 
+    {x=0.450, y=-0.750}, 
+    {x=0.450, y=-0.650}, 
+    {x=0.500, y=-0.750}, 
+    {x=0.500, y=-0.300}, 
+    {x=0.600, y=-0.750}, 
+    {x=0.600, y=-0.300}, 
+    {x=0.700, y=-0.750}, 
+    {x=0.700, y=-0.300}, 
+    {x=0.800, y=-0.750}, 
+    {x=0.800, y=-0.300}, 
+    {x=0.700, y=-0.600}, 
+    {x=0.600, y=-0.500}, 
+    {x=0.700, y=-0.500}, 
+    {x=-0.750, y=-0.250}, 
+    {x=-0.750, y=0.150}, 
+    {x=-0.450, y=-0.250}, 
+    {x=-0.350, y=-0.150}, 
+    {x=-0.450, y=-0.100}, 
+    {x=-0.350, y=0.050}, 
+    {x=-0.450, y=0.150}, 
+    {x=-0.300, y=-0.150}, 
+    {x=-0.300, y=0.050}, 
+    {x=-0.200, y=0.150}, 
+    {x=-0.050, y=0.150}, 
+    {x=0.050, y=0.050}, 
+    {x=0.050, y=-0.150}, 
+    {x=-0.050, y=-0.250}, 
+    {x=-0.200, y=-0.250}, 
+    {x=0.150, y=0.150}, 
+    {x=0.450, y=-0.150}, 
+    {x=0.400, y=-0.250}, 
+    {x=0.100, y=0.050}, 
+    {x=0.100, y=-0.150}, 
+    {x=0.400, y=0.150}, 
+    {x=0.450, y=0.050}, 
+    {x=0.150, y=-0.250}, 
+    {x=0.650, y=0.200}, 
+    {x=0.550, y=0.150}, 
+    {x=0.650, y=0.050}, 
+    {x=0.550, y=0.050},
+
+    indices = {
+        0, 1, 2, 1, 3, 0, 1, 4,
+        5, 6, 3, 4, 5, 7, 8, 7,
+        9, 5, 4, 10, 5, 11, 4, 1,
+        10, 0, 1, 9, 8, 5, 12,
+        13, 14, 11, 15, 12, 12,
+        16, 14, 15, 17, 18, 19,
+        15, 17, 12, 18, 15, 20,
+        21, 22, 23, 24, 25, 24,
+        26, 22, 27, 25, 28, 27,
+        29, 26, 30, 28, 31, 30,
+        32, 29, 33, 34, 35, 36,
+        33, 34, 37, 38, 39, 38,
+        40, 37, 41, 42, 43, 44,
+        45, 46, 45, 47, 48, 47,
+        49, 50, 49, 44, 45, 51,
+        52, 53, 52, 54, 55, 54,
+        56, 57, 56, 58, 50, 51,
+        56, 50, 52, 55, 54, 59,
+        60, 61, 60, 62, 58, 63,
+        64, 65, 66, 62, 64, 67,
+        68, 69, 68, 70, 67
+    }    
+}
+
+local lerp = function (a, b, t)
+    return a * (1-t) + b * t
+end
+
 local t = 0
-cb_frame = function(dt)
+local c = 100
+local c2 = 100
+local game_loaded
+local new_cb_frame
+
+cb_frame = function (dt)
     t = t + dt
+
+    local w = gx_width()
+    local h = gx_height()
+    local res = math.min(w, h)
+
+    if not game_loaded then
+        gx_viewport((c2/100)*((w/2)-(res/2)), (h/2)-(res/2), res, res)
+    else
+        if c2 < 0.08 then
+            cb_frame = new_cb_frame
+            cb_setup()
+        end
+
+        local r = res * (c2/100)
+
+        gx_viewport((w/2)-(r/2), (h/2)-(r/2), r, r)
+        gx_ambient(1, 1, 1, c2/100)
+    end
+
+    gx_background(0.086, 0.086, 0.105, 1)
+
+    print("ponk?")
+    vx_load(splash)
+    print("pank?")
+    vx_render(splash.indices)
+    print("punk!")
 
     mx_mode("projection")
     mx_perspective(80, 0, 1000)
 
     mx_mode("view")
     mx_look_at(
-        3, 0, 2,
+        4+c, 0, 2+(c/4),
         0, 0, 0,
         0, 0, 1
     )
 
+    c = lerp(c, 0, dt*5)
+    if c < 0.01 then
+        c2 = lerp(c2, 0, dt*5)
+    end
+
     mx_mode("model")
-    mx_euler(t, 0, 0)
+    mx_euler(0, c/30, t)
 
     vx_load(cube)
     vx_render(cube.indices)
+    gx_viewport()
 end
+
+cb_setup = function ()
+    local of = cb_frame
+
+    cb_setup = function () end
+    if pcall(require, "meshbox") then
+        game_loaded = true
+    end
+    new_cb_frame = cb_frame
+
+    cb_frame = of
+end
+
