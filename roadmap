@@ -9,6 +9,20 @@
       I was thinking to support formats such as ZIP, as 
       it's simple to understand in all major platforms.
 
+      [3 DECEMBER 2022]:
+        I think the best solution to this is not to think
+        about savefiles as filesystem objects, instead,
+        we could think about them as catridges which are
+        just a static-size buffer encoded into a file.
+
+        Probably something like the game has it's own unique
+        ID which it cannot change, or at least, not
+        several times, or else we'd end up in games which
+        just create several savefile-files all over the 
+        place for specific things, which would be just
+        going back to the original idea of the filesystem
+        abstraction :P
+
   - Add fully agnostic input system:
       An input system that would give us the exact same
       format and APIs in all main platforms, with all main

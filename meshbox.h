@@ -72,13 +72,13 @@ typedef struct {
 }
 
 // Window stuff
-int wn_title(char *title);
+int wn_title(const char *title);
 //int wn_icon(texture icon);
 
 // Memory catridge
 char *sv_read(int *size);
 int sv_write(char *buffer, int size);
-void sv_identity(char *id);
+int sv_identity(char *id);
 
 // Input handling
 vec2 in_joystick(int id);

@@ -28,18 +28,22 @@ int lua_api_sv_read() {
 
 int lua_api_sv_write() {
     int size = 0;
-    char *data = lua_tolstring(l, 1, &size);
+    const char *data = lua_tolstring(l, 1, &size);
     lua_pushboolean(l, sv_write(data, size));
 
     return 1;
 }
 
-void lua_api_sv_identity() {
-    if (lua_isnoneornil(l, 1))
-        return sv_identity(NULL);
+int lua_api_sv_identity() {
+    char *identity = NULL;
 
-    char *identity = luaL_checkstring(l, 1);
-    sv_identity(identity);
+    if (!lua_isnoneornil(l, 1)) {
+        identity = luaL_checkstring(l, 1);
+    }
+
+    lua_pushboolean(l, sv_identity(identity));
+
+    return 1;
 }
 
 int lua_api_fs_read() {

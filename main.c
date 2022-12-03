@@ -109,11 +109,13 @@ static void init(void) {
         }
     };
 
+    sv_identity("meshbox"); // USEFUL FOR BIOS STUFF!
+
     lua_api_setup();
 }
 
 // Window stuff
-    int wn_title(char *title) {
+    int wn_title(const char *title) {
         sapp_set_window_title(title);
     }
 
@@ -135,31 +137,67 @@ FILE *save = NULL;
 
     int sv_write(char *data, int size) {
         if (!identity) return 0;
-        if (size > 8192)
+        if (size > 8192) return 0;
+        if (size == 0) return 0;
 
         fwrite(data, size, 1, save);
-        return 1;
+        return 0;
     }
 
-    void sv_identity(char *name) {
+    bool sv_set = false;
+    bool sv_internal = true; // Protected mode
+
+    int sv_identity(char *name) {
+        if (sv_set) // If the ID has been already set
+            return 0; // Then go away.
+
+        sv_set = !sv_internal; // The ID will be set as
+        // permanent once sv_internal becomes false
+
         if (save)
             fclose(save);
 
-        if (!name) {
-            identity = NULL;
-            return;
+        if (!name && sv_internal) { // If the name is null
+            identity = NULL; // and sv_internal is true
+            sv_internal = false; // set it to false and reset
+            return 0;
+        }
+
+        if (strlen(name) > 16) // If the name is too large
+            return 0; // we'll just quit
+
+        if (!sv_internal && strcmp(name, "meshbox")) {
+            return 0; // the ID "meshbox" is reserved
         }
         
-        free(identity);
-        int len = strlen(name);
-        identity = malloc(len);
-        memcpy(identity, name, len);
+        char *c = name;
+        while (*c) {
+            if (!( // If character does not belong in any of the following:
+                (*c >= '0' && *c <= '9') || // 0123456789
+                (*c >= 'A' && *c <= 'Z') || // ABCDEFGHIJLKMNOPQRSTUVWXYZ
+                (*c >= 'a' && *c <= 'z') || // abcdefghijklmnopqrstuvwxyz
+                (*c == '_')                 // _
+            )) return 0; // Then quit
+            c++;
+        }
 
-        save = fopen(identity, "rb+");
+        if (identity)
+            free(identity);
+
+        identity = malloc(strlen(save_path));
+        memcpy(identity, save_path, strlen(save_path));
+        strcat(identity, name);
+        strcat(identity, ".bin");
+
+        log_info("Opened/Created catridge file '%s'", identity);
+
+        save = fopen(identity, "ab+");
         if (!save) {
             log_fatal("Save file could not be open! Are you sure you've got all the permissions?");
             exit(1);
         }
+
+        return 1;
     }
 
 // Input-related functions
@@ -675,13 +713,13 @@ sapp_desc sokol_main(int argc, char* argv[]) {
     int path_len = strlen(appdata);
     save_path = malloc(path_len+10);
     memcpy(save_path, appdata, path_len);
-    memcpy(save_path+path_len, "\\meshbox", 9);
+    memcpy(save_path+path_len, "\\meshbox\\", 9);
 #else
     struct passwd *pw = getpwuid(getuid());
     int path_len = strlen(pw->pw_dir);
     save_path = malloc(path_len+10);
     memcpy(save_path, pw->pw_dir, path_len);
-    memcpy(save_path+path_len, "/.meshbox", 10);
+    memcpy(save_path+path_len, "/.meshbox/", 10);
 #endif
 
 log_info("Trying to create folder at '%s'", save_path);

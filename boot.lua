@@ -65,6 +65,7 @@ cb_frame = function (dt)
 
     if game_loaded then
         if c2 < 0.08 then
+            sv_identity()
             cb_frame = new_cb_frame
             cb_setup()
         end
