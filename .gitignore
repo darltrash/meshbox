@@ -2,3 +2,4 @@ meshbox
 meshbox.debug
 data.bin
 *.out
+zig-cache/
