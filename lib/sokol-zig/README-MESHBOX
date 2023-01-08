@@ -1,0 +1,5 @@
+This is a modified version of:
+https://github.com/floooh/sokol
+
+It has been modified to better fit the needs of meshbox as it 
+has moved to an SDL2 implementation.
