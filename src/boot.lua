@@ -228,6 +228,16 @@ sv_identity("meshbox-bios")
 
 local p = 1
 
+local function wrap(fn, ...)
+    local status, err = pcall(fn, ...)
+
+    if status then return end
+
+    function mb_frame(dt)
+        mb_error(err, debug.traceback(), dt)
+    end
+end
+
 local lerp = function(a, b, t)
     return a * (1 - t) + b * t
 end
@@ -313,7 +323,11 @@ local stages = {
         vx_render(cube.indices)
 
         if (p < 0.01) then
-            require("meshbox")
+            wrap(require, "meshbox")
+
+            function mb_frame(dt)
+                wrap(mb_loop, dt)
+            end
         end
     end
 }
@@ -322,20 +336,10 @@ function mb_error(err, traceback, dt)
     print(err, traceback)
 end
 
-local function wrap(fn, ...)
-    local status, err = pcall(fn, ...)
-
-    if not status then
-        function mb_frame(dt)
-            mb_error(err, debug.traceback(), dt)
-        end
-    end
-end
-
 function mb_frame(dt)
-    local k = mb_loop or stages[stage]
-
-    local status, err = wrap(k, dt)
+    if in_button("x") or in_button("y") then
+        p = 0
+        stage = 2
+    end
+    wrap(stages[stage], dt)
 end
-
---d

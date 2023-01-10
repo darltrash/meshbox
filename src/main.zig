@@ -2,6 +2,7 @@ const std = @import("std");
 const SDL = @import("sdl2");
 const sg = @import("sokol").gfx;
 const st = @import("sokol").time;
+const sd = @import("sokol").debugtext;
 const kf = @import("known-folders");
 const raw = @import("c");
 const render_shader = @import("render.glsl.zig");
@@ -40,10 +41,14 @@ var output_pipeline: sg.Pipeline = undefined;
 var output_bindings: sg.Bindings = .{};
 var output_pass_action: sg.PassAction = .{};
 
+var text_pass_action: sg.PassAction = .{};
+
 var vertices: std.ArrayList(Vertex) = undefined;
 var current_viewport: Rectangle = .{};
 var should_quit = false;
 var focus = true;
+
+var calls: usize = 0;
 
 pub const wn = struct {
     pub fn title(t: []const u8) !void {
@@ -443,6 +448,7 @@ pub const vx = struct {
         
         indices.deinit();
         vertices.clearAndFree();
+        calls += 1;
     }
 };
 
@@ -481,7 +487,6 @@ pub const li = struct {
     ) void {
         var tt = @intToFloat(f32, @enumToInt(t));
         var i = @intCast(usize, fshader.light_amounts);
-        defer fshader.light_amounts += 1;
 
         fshader.light_position[i] = [4]f32 {
             x, y, z, tt
@@ -490,6 +495,8 @@ pub const li = struct {
         fshader.light_color[i] = [4]f32 {
             r, g, b, 0
         };
+
+        fshader.light_amounts += 1;
     }
 };
 
@@ -604,10 +611,14 @@ pub const in = struct {
         try register(.{.keyboard = .s }, .joyleft_down);
         try register(.{.keyboard = .a }, .joyleft_left);
         try register(.{.keyboard = .d }, .joyleft_right);
-        try register(.{.mouse = .{0,-1}}, .joyright_up);
-        try register(.{.mouse = .{0,1}},  .joyright_down);
-        try register(.{.mouse = .{-1,0}}, .joyright_left);
-        try register(.{.mouse = .{1,0}},  .joyright_right);
+        try register(.{.mouse = .{ 0, -1}}, .joyright_up);
+        try register(.{.mouse = .{ 0,  1}}, .joyright_down);
+        try register(.{.mouse = .{-1,  0}}, .joyright_left);
+        try register(.{.mouse = .{ 1,  0}}, .joyright_right);
+        try register(.{.keyboard = .z }, .x);
+        try register(.{.keyboard = .x }, .y);
+        try register(.{.keyboard = .c }, .a);
+        try register(.{.keyboard = .v }, .b);
 
         try register(.{.mouse_button = .left }, .shoulder_left);
         try register(.{.mouse_button = .right}, .shoulder_right);
@@ -903,7 +914,10 @@ fn send_uniforms() void {
 /////////////////////////////////////////////////////////
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true
+    }){};
+    gpa.setRequestedMemoryLimit(128 * 1_048_576); // 128 MB
     allocator = gpa.allocator();
 
     try SDL.init(.{
@@ -932,11 +946,18 @@ pub fn main() !void {
 
     sg.setup(.{});
     st.setup();
-    
+
+    var sdtx_desc: sd.Desc = .{};
+    sdtx_desc.fonts[0] = sd.fontZ1013();
+    sd.setup(sdtx_desc);
+    text_pass_action.colors[0].action = .DONTCARE;
+
     try init();
 
     var last = st.now();
     var delta: f64 = 0;
+
+    var debug = std.process.hasEnvVarConstant("MESHBOX_DEBUG");
 
     mainLoop: while (!should_quit) {
         var diff = st.laptime(&last);
@@ -971,6 +992,8 @@ pub fn main() !void {
         mx.mode(.projection);
         mx.identity();
 
+        calls = 0;
+
         sg.beginPass(render_pass, render_pass_action);
             sg.applyPipeline(render_pipeline);
             render_bindings.vertex_buffer_offsets[0] = 0;
@@ -986,6 +1009,24 @@ pub fn main() !void {
             sg.draw(0, 6, 1);
         sg.endPass();
         
+        if (debug) {
+            sd.canvas(@intToFloat(f32, size.width)/2, @intToFloat(f32, size.height)/2);
+                sd.color1i(0xffffffff);
+                sd.origin(2, 2);
+                sd.font(0);
+                const mem = @intToFloat(f32, gpa.total_requested_bytes)/1_048_576;
+                sd.print("Memory: {d:.01}MB", .{mem});
+                sd.crlf();
+                sd.print("Calls: {}", .{calls});
+                sd.crlf();
+                sd.print("Frame: {}ns", .{diff});
+                sd.crlf();
+
+            sg.beginDefaultPass(text_pass_action, size.width, size.height);
+                sd.draw();
+            sg.endPass();
+        }
+
         sg.commit();
         SDL.gl.swapWindow(window);
     }
