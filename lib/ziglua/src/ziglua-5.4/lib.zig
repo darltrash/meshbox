@@ -325,20 +325,14 @@ pub const Lua = struct {
         const alignment = @alignOf(std.c.max_align_t);
         const allocator = opaqueCast(Allocator, data.?);
 
-        if (@ptrCast(?[*]align(alignment) u8, @alignCast(alignment, ptr))) |prev_ptr| {
+        if (nsize == 0) {
+            return null;
+        } else if (@ptrCast(?[*]align(alignment) u8, @alignCast(alignment, ptr))) |prev_ptr| {
             const prev_slice = prev_ptr[0..osize];
-
-            // when nsize is zero the allocator must behave like free and return null
-            if (nsize == 0) {
-                allocator.free(prev_slice);
-                return null;
-            }
 
             // when nsize is not zero the allocator must behave like realloc
             const new_ptr = allocator.reallocAdvanced(prev_slice, nsize, 0) catch return null;
             return new_ptr.ptr;
-        } else if (nsize == 0) {
-            return null;
         } else {
             // ptr is null, allocate a new block of memory
             const new_ptr = allocator.alignedAlloc(u8, alignment, nsize) catch return null;

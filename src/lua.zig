@@ -348,7 +348,6 @@ const lua_fn = struct {
         }
 
         meshbox.vx.mesh(vertices) catch unreachable;
-
         meshbox.allocator.free(vertices);
         return 0;
     }
